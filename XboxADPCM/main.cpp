@@ -62,14 +62,24 @@ size_t encode(const int16_t* pcm, uint8_t* adpcm, size_t num_channels, size_t nu
 					uint8_t encodedSample = Converters[c].EncodeSample(pcm[k * num_channels + c]);
 					assert((encodedSample & 0xF0) == 0);
 					if (k & 1)
-						adpcm[k / 2] |= (encodedSample << 4);
+						if (j == 7 && k == 7) {
+							adpcm[k / 2] |= 0;
+						}
+						else {
+							adpcm[k / 2] |= (encodedSample << 4);
+						}
 					else
 						adpcm[k / 2] = encodedSample;
 				}
 
 				adpcm += ADPCM_INTERLEAVE_BYTES;
 			}
-			pcm += ADPCM_INTERLEAVE_SAMPLES * num_channels;
+			if (j == 7) {
+				pcm += (ADPCM_INTERLEAVE_SAMPLES - 1) * num_channels;
+			}
+			else {
+				pcm += ADPCM_INTERLEAVE_SAMPLES * num_channels;
+			}
 		}
 	}
 	return i;
